@@ -63,17 +63,17 @@ body {
     margin-left: 10px;
 }
 
-body .header-comptask {
+.tasks-space .header-comptask {
     margin-top: 60px;
     font-size: 13px;
 }
 
-body .comptask-ul {
+.tasks-space .comptask-ul {
     margin-top: 20px;
     font-size: 15px;
 }
 
-body .comptask-ul li {
+.tasks-space .comptask-ul li {
     height: 30px; 
     margin-top: 10px;
 }

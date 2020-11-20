@@ -6,11 +6,6 @@ let allTasks;
 allTasks = JSON.parse(localStorage.getItem("allTasks"))??[];
 allTasks.forEach(task => renderTask(task));
 
-window.addEventListener("storage", function () {
-    newTasks.innerHTML = "";
-    allTasks = JSON.parse(localStorage.getItem("allTasks"))??[];
-    allTasks.forEach(task => renderTask(task));
-} );
 
 // Function declarations
 
@@ -44,11 +39,13 @@ function complateTask(e) {
         currentTask.timeout = setTimeout( () => {
             const currentLi = e.target.parentElement;
             completedTasks.appendChild(currentLi);
-            e.target.remove();
-            allTasks = removeTask(allTasks, currentTask.id);
+            currentTask.complatedAt = Date.now();
             updateStorage();
+            e.target.remove();
             setTimeout( () => {
                 currentLi.remove();
+                allTasks = removeTask(allTasks, currentTask.id);
+                updateStorage();
             }, 5000)
         }, 2000
         )
@@ -63,17 +60,34 @@ function complateTask(e) {
 
 function renderTask(task) {
     const li = document.createElement("li");
-    const checkBox = document.createElement("input");
-    checkBox.type = "checkbox";
     const span = document.createElement("span");
     span.textContent = task.value;
+    
+    if(task.complatedAt === null){
+        const checkBox = document.createElement("input");
+        checkBox.type = "checkbox";
+        
+        newTasks.appendChild(li);
+        li.appendChild(checkBox);
+        checkBox.dataset.id = task.id;
+        
+        checkBox.addEventListener("change", complateTask)
+    } else {
+        if(Date.now() - task.complatedAt > 5000){
+            allTasks = removeTask(allTasks, task.id);
+            updateStorage();
+        } else {
+            completedTasks.appendChild(li);
+            setTimeout(() => {
+                allTasks = removeTask(allTasks, task.id);
+                updateStorage();
+                li.remove();
+            }, Date.now() - task.complatedAt);
+        }   
+        
+    }
 
-    newTasks.appendChild(li);
-    li.appendChild(checkBox);
-    checkBox.dataset.id = task.id;
     li.appendChild(span);
-
-    checkBox.addEventListener("change", complateTask)
 }
 
 
@@ -89,9 +103,11 @@ textInput.addEventListener('keypress', function (e) {
     }
 });
 
-
-
-
+window.addEventListener("storage", function () {
+    newTasks.innerHTML = "";
+    allTasks = JSON.parse(localStorage.getItem("allTasks"))??[];
+    allTasks.forEach(task => renderTask(task));
+} );
 
 
 textInput.focus();
